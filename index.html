@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA | Aesthetic Dark Ecosystems</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts: Syne & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons for Social Symbols -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- GSAP & Lenis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.32/dist/lenis.min.js"></script>
+
+    <style>
+        :root {
+            /* Aesthetic Dark Theme */
+            --bg-color: #030305;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            
+            /* Deep Bioluminescent Accents */
+            --accent-violet: rgba(124, 58, 237, 0.4);
+            --accent-blue: rgba(59, 130, 246, 0.4);
+            --accent-pink: rgba(236, 72, 153, 0.3);
+            
+            /* Social Brand Accents (Vibrant for Dark Mode) */
+            --social-ig: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --social-tt: linear-gradient(135deg, #00f2fe 0%, #fe0979 100%);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Syne', sans-serif;
+        }
+
+        /* --- Dark Grain Texture --- */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.06;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: screen;
+        }
+
+        /* --- Aesthetic Cursor --- */
+        .cursor-dot, .cursor-blur {
+            position: fixed;
+            top: 0; left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        .cursor-dot {
+            width: 8px; height: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+            mix-blend-mode: difference;
+        }
+        .cursor-blur {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--accent-violet) 0%, transparent 60%);
+            filter: blur(40px);
+            opacity: 0.3;
+            transition: opacity 0.8s;
+        }
+        
+        body:hover .cursor-dot { width: 12px; height: 12px; }
+        .hover-target:hover ~ .cursor-dot {
+            width: 60px; height: 60px;
+            background-color: rgba(255,255,255,0.1);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        /* --- Deep Mesh Gradients --- */
+        .mesh-gradient {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            animation: float 25s infinite ease-in-out alternate;
+            opacity: 0.5;
+            mix-blend-mode: screen;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(5%, 10%) scale(1.1) rotate(180deg); }
+            100% { transform: translate(-5%, -5%) scale(0.9) rotate(360deg); }
+        }
+
+        /* --- Cornerless Utilities --- */
+        .pill { border-radius: 9999px; }
+        .cornerless-box { border-radius: 2.5rem; }
+
+        /* --- Dark Glass Panels --- */
+        .dark-glass {
+            background: var(--surface);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        /* --- Social Platform Bubbles --- */
+        .platform-bubble {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease, background 0.6s;
+        }
+        .platform-bubble:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: var(--surface-hover);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .platform-glow {
+            position: absolute;
+            width: 150%; height: 150%;
+            top: -25%; left: -25%;
+            filter: blur(50px);
+            z-index: -1;
+            opacity: 0.15;
+            transition: opacity 0.6s ease;
+        }
+        .platform-bubble:hover .platform-glow {
+            opacity: 0.4;
+        }
+
+        /* --- Animated Graph Utilities --- */
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 200px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .bar-element {
+            flex: 1;
+            background: linear-gradient(to top, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0.8));
+            border-radius: 8px 8px 0 0;
+            height: 0%; /* Start at 0 for animation */
+            transform-origin: bottom;
+            position: relative;
+        }
+        .bar-element::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: #fff;
+            border-radius: 8px 8px 0 0;
+            opacity: 0.5;
+        }
+        
+        .line-chart-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .line-path {
+            fill: none;
+            stroke: url(#lineGradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            /* Will be animated via GSAP clip-path */
+        }
+        .chart-clip {
+            clip-path: inset(0 100% 0 0); /* Hidden initially */
+        }
+
+        /* --- Slow Marquee --- */
+        .marquee-container {
+            display: flex;
+            width: max-content;
+            animation: marquee 50s linear infinite;
+        }
+        @keyframes marquee {
+            to { transform: translateX(-50%); }
+        }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-glow {
+            text-shadow: 0 0 40px rgba(255,255,255,0.3);
+        }
+
+        /* Lenis smooth scroll fix */
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+    </style>
+</head>
+<body class="selection:bg-violet-500/30 selection:text-white">
+
+    <!-- Global Elements -->
+    <div class="noise-overlay"></div>
+    <div class="cursor-blur" id="cursor-blur"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+
+    <!-- S1: Navigation -->
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-4xl">
+        <div class="pill dark-glass px-8 py-4 flex justify-between items-center transition-all duration-500 hover-target">
+            <div class="font-display font-bold text-xl tracking-[0.2em] text-white">AURA</div>
+            <div class="hidden md:flex gap-10 text-xs font-medium text-gray-400 uppercase tracking-widest">
+                <a href="#ecosystem" class="hover:text-white transition-colors">Ecosystem</a>
+                <a href="#growth" class="hover:text-white transition-colors">Growth</a>
+                <a href="#vision" class="hover:text-white transition-colors">Vision</a>
+                <a href="#flow" class="hover:text-white transition-colors">Flow</a>
+            </div>
+            <button class="pill bg-white text-black px-6 py-2.5 text-xs font-bold uppercase tracking-wide hover:bg-gray-200 transition-colors duration-300">
+                Initiate
+            </button>
+        </div>
+    </nav>
+
+    <!-- Deep Ambient Background Orbs -->
+    <div class="mesh-gradient bg-violet-900 w-[800px] h-[800px] top-[-10%] left-[-10%]"></div>
+    <div class="mesh-gradient bg-blue-900 w-[1000px] h-[1000px] top-[20%] right-[-20%]" style="animation-delay: -5s;"></div>
+    <div class="mesh-gradient bg-pink-900/50 w-[600px] h-[600px] bottom-[20%] left-[10%]" style="animation-delay: -10s;"></div>
+
+    <main>
+        <!-- S2: Aesthetic Hero Section -->
+        <section class="relative min-h-screen flex flex-col justify-center items-center px-4 pt-20 overflow-hidden">
+            <div class="text-center z-10 max-w-5xl">
+                <div class="overflow-hidden mb-6">
+                    <p class="hero-tag font-medium text-violet-400 tracking-[0.3em] uppercase text-xs md:text-sm blur-sm opacity-0 translate-y-6 flex items-center justify-center gap-3">
+                        <span class="w-8 h-[1px] bg-violet-400/50"></span>
+                        Algorithmic Ascendance
+                        <span class="w-8 h-[1px] bg-violet-400/50"></span>
+                    </p>
+                </div>
+                
+                <h1 class="font-display font-extrabold text-[12vw] md:text-[9vw] leading-[0.85] tracking-tighter mb-8 flex flex-col items-center text-white text-glow">
+                    <div class="overflow-hidden w-full">
+                        <span class="hero-text block blur-md opacity-0 translate-y-20">DESIGN</span>
+                    </div>
+                    <div class="overflow-hidden w-full flex justify-center items-center gap-4 md:gap-8">
+                        <span class="hero-text block blur-md opacity-0 translate-y-20">THE</span>
+                        <!-- Aesthetic Tech Shape -->
+                        <div class="hero-img-container w-[18vw] h-[8vw] pill overflow-hidden opacity-0 scale-75 dark-glass flex items-center justify-center relative">
+                            <div class="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-blue-600/20 mix-blend-screen"></div>
+                            <i class="ph ph-infinity text-4xl md:text-6xl text-white/80"></i>
+                        </div>
+                        <span class="hero-text block blur-md opacity-0 translate-y-20 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">VOID</span>
+                    </div>
+                </h1>
+
+                <div class="overflow-hidden mt-8 max-w-xl mx-auto">
+                    <p class="hero-desc text-gray-400 text-base md:text-xl font-light blur-sm opacity-0 translate-y-6 leading-relaxed">
+                        We transform raw data into aesthetic digital ecosystems. No corners, no friction—just pure, scroll-stopping presence in the dark.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sleek Scroll Indicator -->
+            <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-50 hover:opacity-100 transition-opacity">
+                <span class="text-[9px] uppercase tracking-[0.3em] text-white">Descend</span>
+                <div class="w-[1px] h-16 relative overflow-hidden bg-white/10">
+                    <div class="absolute top-0 left-0 w-full h-1/2 bg-white scroll-line"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- S3: Marquee Divider -->
+        <section class="py-12 overflow-hidden border-y border-white/5 bg-black/20 backdrop-blur-lg">
+            <div class="marquee-container font-display text-4xl md:text-6xl font-bold tracking-tighter text-transparent" style="-webkit-text-stroke: 1px rgba(255,255,255,0.15);">
+                <div class="flex gap-16 px-8 items-center">
+                    <span>PURE AESTHETIC.</span>
+                    <i class="ph-fill ph-star-four text-violet-500/50"></i>
+                    <span>DEEP METRICS.</span>
+                    <i class="ph-fill ph-star-four text-blue-500/50"></i>
+                    <span>INFINITE FLOW.</span>
+                    <i class="ph-fill ph-star-four text-pink-500/50"></i>
+                </div>
+                <div class="flex gap-16 px-8 items-center">
+                    <span>PURE AESTHETIC.</span>
+                    <i class="ph-fill ph-star-four text-violet-500/50"></i>
+                    <span>DEEP METRICS.</span>
+                    <i class="ph-fill ph-star-four text-blue-500/50"></i>
+                    <span>INFINITE FLOW.</span>
+                    <i class="ph-fill ph-star-four text-pink-500/50"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- S4: Social Platform Ecosystem -->
+        <section id="ecosystem" class="py-32 px-4 md:px-12 max-w-7xl mx-auto relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="font-display text-4xl md:text-6xl font-bold tracking-tight mb-6 text-gradient">Dark Habitats</h2>
+                <p class="text-gray-400 max-w-lg mx-auto text-lg font-light">Owning the feed through striking visuals and subliminal engagement across the digital spectrum.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Platform: Instagram -->
+                <div class="platform-card platform-bubble dark-glass cornerless-box p-8 flex flex-col items-center text-center group">
+                    <div class="platform-glow" style="background: var(--social-ig);"></div>
+                    <div class="w-16 h-16 rounded-full bg-black/50 border border-white/10 flex items-center justify-center mb-6 text-white group-hover:text-pink-400 transition-colors duration-500">
+                        <i class="ph ph-instagram-logo text-3xl"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-3 text-white">Visual Grids</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Curating highly-aesthetic, midnight-themed feeds that demand attention.</p>
+                </div>
+
+                <!-- Platform: TikTok -->
+                <div class="platform-card platform-bubble dark-glass cornerless-box p-8 flex flex-col items-center text-center group lg:mt-12">
+                    <div class="platform-glow" style="background: var(--social-tt);"></div>
+                    <div class="w-16 h-16 rounded-full bg-black/50 border border-white/10 flex items-center justify-center mb-6 text-white group-hover:text-cyan-400 transition-colors duration-500">
+                        <i class="ph ph-tiktok-logo text-3xl"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-3 text-white">Viral Kinematics</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">High-retention, motion-blurred edits designed to manipulate the algorithm.</p>
+                </div>
+
+                <!-- Platform: X -->
+                <div class="platform-card platform-bubble dark-glass cornerless-box p-8 flex flex-col items-center text-center group lg:mt-24">
+                    <div class="platform-glow bg-gray-500"></div>
+                    <div class="w-16 h-16 rounded-full bg-black/50 border border-white/10 flex items-center justify-center mb-6 text-white group-hover:text-gray-200 transition-colors duration-500">
+                        <i class="ph ph-x-logo text-3xl"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-3 text-white">Cult Creation</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Engineering sharp, minimalist discourse that builds fanatic communities.</p>
+                </div>
+
+                <!-- Platform: YouTube -->
+                <div class="platform-card platform-bubble dark-glass cornerless-box p-8 flex flex-col items-center text-center group lg:mt-12">
+                    <div class="platform-glow bg-red-600"></div>
+                    <div class="w-16 h-16 rounded-full bg-black/50 border border-white/10 flex items-center justify-center mb-6 text-white group-hover:text-red-500 transition-colors duration-500">
+                        <i class="ph ph-youtube-logo text-3xl"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-3 text-white">Deep Form</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Cinematic long-form content that hypnotizes and retains viewers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- S5: Animated Growth / Data Section (NEW) -->
+        <section id="growth" class="py-32 px-4 relative">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-16 items-center">
+                    
+                    <!-- Text Info -->
+                    <div class="w-full md:w-1/3">
+                        <span class="text-violet-400 text-xs font-bold tracking-[0.2em] uppercase mb-4 block">The Analytics</span>
+                        <h2 class="font-display text-4xl md:text-5xl font-bold tracking-tight mb-6 text-white">Calculated<br>Ascension.</h2>
+                        <p class="text-gray-400 mb-8 font-light leading-relaxed">Aesthetic is nothing without velocity. We back our cornerless design with aggressive growth engineering. Watch the data breathe.</p>
+                        
+                        <div class="flex gap-8 mb-8">
+                            <div>
+                                <div class="text-3xl font-display font-bold text-white mb-1"><span class="counter-element" data-target="2.4" data-suffix="M">0</span></div>
+                                <div class="text-xs text-gray-500 uppercase tracking-widest">Impressions</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-display font-bold text-white mb-1"><span class="counter-element" data-target="380" data-suffix="%">0</span></div>
+                                <div class="text-xs text-gray-500 uppercase tracking-widest">Engagement</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animated Graphs Dashboard -->
+                    <div class="w-full md:w-2/3 dark-glass cornerless-box p-8 md:p-12 relative overflow-hidden group">
+                        <!-- Background glow inside dashboard -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-violet-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
+                            
+                            <!-- Bar Chart -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-300 mb-6 flex items-center gap-2"><i class="ph-fill ph-chart-bar text-violet-400"></i> Audience Scaling</h4>
+                                <div class="bar-chart-container">
+                                    <div class="bar-element" data-height="20%"></div>
+                                    <div class="bar-element" data-height="35%"></div>
+                                    <div class="bar-element" data-height="30%"></div>
+                                    <div class="bar-element" data-height="55%"></div>
+                                    <div class="bar-element" data-height="45%"></div>
+                                    <div class="bar-element" data-height="80%"></div>
+                                    <div class="bar-element" data-height="100%"></div>
+                                </div>
+                                <div class="flex justify-between mt-3 text-[10px] text-gray-500 font-medium uppercase tracking-wider">
+                                    <span>Q1</span>
+                                    <span>Q2</span>
+                                    <span>Q3</span>
+                                    <span>Q4</span>
+                                </div>
+                            </div>
+
+                            <!-- Line Curve Chart -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-300 mb-6 flex items-center gap-2"><i class="ph-fill ph-trend-up text-blue-400"></i> Trajectory</h4>
+                                <div class="h-[200px] w-full relative">
+                                    <!-- Decorative grid lines -->
+                                    <div class="absolute inset-0 flex flex-col justify-between opacity-10">
+                                        <div class="w-full h-px bg-white"></div>
+                                        <div class="w-full h-px bg-white"></div>
+                                        <div class="w-full h-px bg-white"></div>
+                                        <div class="w-full h-px bg-white"></div>
+                                    </div>
+                                    
+                                    <!-- SVG Line Graphic -->
+                                    <svg class="line-chart-svg chart-clip" viewBox="0 0 400 200" preserveAspectRatio="none">
+                                        <defs>
+                                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#3b82f6" />
+                                                <stop offset="50%" stop-color="#8b5cf6" />
+                                                <stop offset="100%" stop-color="#ec4899" />
+                                            </linearGradient>
+                                            <linearGradient id="fillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stop-color="rgba(139, 92, 246, 0.4)" />
+                                                <stop offset="100%" stop-color="rgba(139, 92, 246, 0)" />
+                                            </linearGradient>
+                                        </defs>
+                                        <!-- Fill under curve -->
+                                        <path class="chart-fill" fill="url(#fillGradient)" d="M0,200 L0,180 C50,180 100,150 150,140 C200,130 250,80 300,50 C350,20 380,10 400,0 L400,200 Z" opacity="0.5"/>
+                                        <!-- The actual curve -->
+                                        <path class="line-path" d="M0,180 C50,180 100,150 150,140 C200,130 250,80 300,50 C350,20 380,10 400,0" />
+                                        
+                                        <!-- End dot -->
+                                        <circle cx="400" cy="0" r="6" fill="#ec4899" class="end-dot opacity-0" />
+                                    </svg>
+                                </div>
+                                <div class="flex justify-between mt-3 text-[10px] text-gray-500 font-medium uppercase tracking-wider">
+                                    <span>Launch</span>
+                                    <span>Present</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- S6: Vision / Case Studies (NEW) -->
+        <section id="vision" class="py-32 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="font-display text-[10vw] md:text-[8vw] font-black tracking-tighter text-center mb-12 text-white/5 select-none absolute top-10 left-1/2 -translate-x-1/2 w-full">PORTFOLIO</h2>
+                
+                <div class="relative z-10 flex flex-col gap-12 mt-20">
+                    <!-- Case Study 1 -->
+                    <div class="case-card dark-glass cornerless-box overflow-hidden h-[50vh] md:h-[60vh] relative group flex items-end p-8 md:p-12">
+                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-1000 ease-out" alt="Abstract render">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                        <div class="relative z-10 w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                            <div>
+                                <span class="pill bg-white/10 backdrop-blur-md px-4 py-1 text-xs font-medium uppercase tracking-widest border border-white/10 mb-4 inline-block text-gray-300">Brand Identity</span>
+                                <h3 class="font-display text-4xl md:text-5xl font-bold text-white mb-2">Neon Synthesis</h3>
+                                <p class="text-gray-400 max-w-md">Complete visual overhaul for a Web3 protocol, resulting in a 400% increase in community retention.</p>
+                            </div>
+                            <button class="pill w-16 h-16 bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300 hover-target shrink-0">
+                                <i class="ph ph-arrow-up-right text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Case Study 2 -->
+                    <div class="case-card dark-glass cornerless-box overflow-hidden h-[50vh] md:h-[60vh] relative group flex items-end p-8 md:p-12 md:w-5/6 md:ml-auto">
+                        <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-1000 ease-out" alt="Abstract metal">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                        <div class="relative z-10 w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                            <div>
+                                <span class="pill bg-white/10 backdrop-blur-md px-4 py-1 text-xs font-medium uppercase tracking-widest border border-white/10 mb-4 inline-block text-gray-300">Campaign</span>
+                                <h3 class="font-display text-4xl md:text-5xl font-bold text-white mb-2">Liquid Architecture</h3>
+                                <p class="text-gray-400 max-w-md">A cornerless, fluid social campaign that redefined digital interaction for a luxury tech brand.</p>
+                            </div>
+                            <button class="pill w-16 h-16 bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300 hover-target shrink-0">
+                                <i class="ph ph-arrow-up-right text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- S7: Fluid Services / Flow -->
+        <section id="flow" class="py-40 px-4 md:px-12 max-w-5xl mx-auto">
+            <h2 class="font-display text-center text-3xl font-bold tracking-widest uppercase text-gray-600 mb-16">The Flow State</h2>
+            <div class="flex flex-col gap-6 relative">
+                
+                <!-- Service Row 1 -->
+                <div class="service-row group flex flex-col md:flex-row items-center justify-between p-6 md:p-10 cornerless-box dark-glass hover:bg-white/5 transition-all duration-700 hover-target">
+                    <div class="flex items-center gap-6 w-full md:w-1/2">
+                        <span class="text-violet-500 font-display text-xl font-bold">01</span>
+                        <h3 class="font-display text-2xl md:text-3xl font-bold text-white group-hover:translate-x-4 transition-transform duration-500">Aesthetic Harmony</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm md:text-base w-full md:w-1/3 mt-4 md:mt-0 text-left md:text-right group-hover:-translate-x-2 transition-transform duration-500">
+                        Crafting pixel-perfect, dark-mode dominant assets that stand out in a bright timeline.
+                    </p>
+                </div>
+
+                <!-- Service Row 2 -->
+                <div class="service-row group flex flex-col md:flex-row items-center justify-between p-6 md:p-10 cornerless-box dark-glass hover:bg-white/5 transition-all duration-700 hover-target md:ml-12">
+                    <div class="flex items-center gap-6 w-full md:w-1/2">
+                        <span class="text-blue-500 font-display text-xl font-bold">02</span>
+                        <h3 class="font-display text-2xl md:text-3xl font-bold text-white group-hover:translate-x-4 transition-transform duration-500">Organic Cultivation</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm md:text-base w-full md:w-1/3 mt-4 md:mt-0 text-left md:text-right group-hover:-translate-x-2 transition-transform duration-500">
+                        Converting passive scrollers into dedicated cult followers through strategic storytelling.
+                    </p>
+                </div>
+
+                <!-- Service Row 3 -->
+                <div class="service-row group flex flex-col md:flex-row items-center justify-between p-6 md:p-10 cornerless-box dark-glass hover:bg-white/5 transition-all duration-700 hover-target md:ml-24">
+                    <div class="flex items-center gap-6 w-full md:w-1/2">
+                        <span class="text-pink-500 font-display text-xl font-bold">03</span>
+                        <h3 class="font-display text-2xl md:text-3xl font-bold text-white group-hover:translate-x-4 transition-transform duration-500">Subliminal Motion</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm md:text-base w-full md:w-1/3 mt-4 md:mt-0 text-left md:text-right group-hover:-translate-x-2 transition-transform duration-500">
+                        Advanced video editing with fluid transitions and motion blur to keep the eye locked in.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer (Comprehensive Aesthetic Dark Footer) -->
+    <footer id="connect" class="relative pt-32 bg-transparent border-t border-white/5 overflow-hidden">
+        <!-- Animated Background Orb (Controlled by GSAP) -->
+        <div class="footer-orb absolute bottom-0 left-1/2 -translate-x-1/2 w-[150vw] h-[150vw] md:w-[100vw] md:h-[100vw] bg-gradient-to-t from-violet-900/30 via-blue-900/10 to-transparent rounded-[100%] translate-y-1/2 pointer-events-none z-0"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 pb-12">
+            
+            <!-- Top CTA Section -->
+            <div class="flex flex-col items-center text-center mb-32">
+                <h2 class="font-display text-5xl md:text-7xl font-bold tracking-tighter mb-8 text-white text-glow">
+                    Enter The Void
+                </h2>
+                <button class="pill dark-glass border border-violet-500/50 text-white px-12 py-5 text-sm font-bold tracking-widest uppercase hover:scale-105 hover:bg-white hover:text-black transition-all duration-500 shadow-[0_0_30px_rgba(124,58,237,0.3)] hover-target">
+                    Initiate Contact
+                </button>
+            </div>
+
+            <!-- Main Footer Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16 border-t border-white/10 pt-16">
+                
+                <!-- Brand Column -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <div class="font-display font-bold text-3xl tracking-[0.2em] text-white flex items-center gap-3">
+                        <i class="ph ph-infinity text-violet-500"></i> AURA
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed max-w-xs font-light">
+                        Engineering aesthetic digital ecosystems and subliminal growth strategies for the post-digital era. 
+                    </p>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="lg:col-span-2 flex flex-col gap-4">
+                    <h4 class="text-white font-display font-bold uppercase tracking-widest text-xs mb-2">Navigation</h4>
+                    <a href="#ecosystem" class="text-gray-400 hover:text-white transition-colors text-sm w-fit hover-target">Dark Habitats</a>
+                    <a href="#growth" class="text-gray-400 hover:text-white transition-colors text-sm w-fit hover-target">Growth Matrix</a>
+                    <a href="#vision" class="text-gray-400 hover:text-white transition-colors text-sm w-fit hover-target">Portfolio</a>
+                    <a href="#flow" class="text-gray-400 hover:text-white transition-colors text-sm w-fit hover-target">Flow State</a>
+                </div>
+
+                <!-- Social Network -->
+                <div class="lg:col-span-2 flex flex-col gap-4">
+                    <h4 class="text-white font-display font-bold uppercase tracking-widest text-xs mb-2">Network</h4>
+                    <a href="#" class="text-gray-400 hover:text-pink-400 transition-colors text-sm w-fit flex items-center gap-2 hover-target"><i class="ph ph-instagram-logo text-lg"></i> Instagram</a>
+                    <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors text-sm w-fit flex items-center gap-2 hover-target"><i class="ph ph-tiktok-logo text-lg"></i> TikTok</a>
+                    <a href="#" class="text-gray-400 hover:text-gray-200 transition-colors text-sm w-fit flex items-center gap-2 hover-target"><i class="ph ph-x-logo text-lg"></i> X (Twitter)</a>
+                    <a href="#" class="text-gray-400 hover:text-red-500 transition-colors text-sm w-fit flex items-center gap-2 hover-target"><i class="ph ph-youtube-logo text-lg"></i> YouTube</a>
+                </div>
+
+                <!-- Newsletter Transmission -->
+                <div class="lg:col-span-4 flex flex-col gap-4">
+                    <h4 class="text-white font-display font-bold uppercase tracking-widest text-xs mb-2">Transmission</h4>
+                    <p class="text-gray-400 text-sm font-light">Join the inner circle for unreleased growth strategies and exclusive visual drops.</p>
+                    <form class="flex mt-2 relative group hover-target">
+                        <input type="email" placeholder="ENTER EMAIL" class="bg-white/5 border border-white/10 rounded-l-full px-6 py-3.5 text-sm text-white focus:outline-none focus:border-violet-500 focus:bg-white/10 w-full placeholder-gray-600 transition-all">
+                        <button type="submit" class="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3.5 rounded-r-full text-sm font-bold transition-colors border border-violet-600 hover:border-violet-500 flex items-center justify-center">
+                            <i class="ph ph-arrow-right text-lg"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Bottom Legal Bar -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] text-gray-600 uppercase tracking-widest font-display border-t border-white/5 pt-8">
+                <p>&copy; 2026 AURA AGENCY. ZERO CORNERS.</p>
+                <div class="flex gap-8">
+                    <a href="#" class="hover:text-gray-400 transition-colors hover-target">Privacy Policy</a>
+                    <a href="#" class="hover:text-gray-400 transition-colors hover-target">Terms of Service</a>
+                    <a href="#" class="hover:text-gray-400 transition-colors hover-target">Cookie Matrix</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // 1. Smooth Scrolling (Lenis)
+        const lenis = new Lenis({
+            duration: 1.8, 
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+            direction: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1, 
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time)=>{
+          lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0, 0);
+
+        // 2. Custom Aesthetic Cursor
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorBlur = document.getElementById('cursor-blur');
+        
+        if (window.matchMedia("(pointer: fine)").matches) {
+            let mouseX = 0, mouseY = 0;
+            let dotX = 0, dotY = 0;
+            let blurX = 0, blurY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function renderCursor() {
+                dotX += (mouseX - dotX) * 0.2;
+                dotY += (mouseY - dotY) * 0.2;
+                
+                blurX += (mouseX - blurX) * 0.04;
+                blurY += (mouseY - blurY) * 0.04;
+
+                cursorDot.style.transform = `translate(${dotX}px, ${dotY}px)`;
+                cursorBlur.style.transform = `translate(${blurX}px, ${blurY}px)`;
+                
+                requestAnimationFrame(renderCursor);
+            }
+            renderCursor();
+        } else {
+            cursorDot.style.display = 'none';
+            cursorBlur.style.display = 'none';
+            document.body.style.cursor = 'auto';
+        }
+
+        // 3. Initial Hero Animation
+        const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        
+        heroTl.to(".hero-tag", {
+            y: 0, opacity: 1, filter: "blur(0px)", duration: 1.5, delay: 0.2
+        })
+        .to(".hero-text", {
+            y: 0, opacity: 1, filter: "blur(0px)", duration: 1.5, stagger: 0.15
+        }, "-=1.2")
+        .to(".hero-img-container", {
+            opacity: 1, scale: 1, duration: 2, ease: "elastic.out(1, 0.7)"
+        }, "-=1.5")
+        .to(".hero-desc", {
+            y: 0, opacity: 1, filter: "blur(0px)", duration: 1.5
+        }, "-=1.2");
+
+        // Scroll Indicator Line Animation
+        gsap.to(".scroll-line", {
+            y: "200%", duration: 2, repeat: -1, ease: "power1.inOut"
+        });
+
+        // 4. Scroll Animations
+
+        // Platform Bubbles
+        gsap.utils.toArray('.platform-card').forEach((card, i) => {
+            gsap.fromTo(card, 
+                { y: 80, opacity: 0 },
+                {
+                    scrollTrigger: { trigger: card, start: "top 90%", end: "top 60%", scrub: 1 },
+                    y: 0, opacity: 1, ease: "power2.out"
+                }
+            );
+        });
+
+        // --- NEW: Graph & Data Animations ---
+        
+        // Number Counters
+        gsap.utils.toArray('.counter-element').forEach(el => {
+            let target = parseFloat(el.dataset.target);
+            let suffix = el.dataset.suffix || "";
+            let isDecimal = target % 1 !== 0;
+            let obj = { val: 0 };
+            
+            gsap.to(obj, {
+                val: target,
+                duration: 2.5,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 85%"
+                },
+                onUpdate: () => {
+                    el.innerText = (isDecimal ? obj.val.toFixed(1) : Math.floor(obj.val)) + suffix;
+                }
+            });
+        });
+
+        // Bar Chart Growth
+        gsap.utils.toArray('.bar-element').forEach((bar, i) => {
+            gsap.to(bar, {
+                height: bar.dataset.height,
+                duration: 1.5,
+                ease: "expo.out",
+                delay: i * 0.1, // staggered effect
+                scrollTrigger: {
+                    trigger: ".bar-chart-container",
+                    start: "top 85%"
+                }
+            });
+        });
+
+        // Line Chart Reveal
+        gsap.to(".chart-clip", {
+            clipPath: "inset(0 0% 0 0)",
+            duration: 2,
+            ease: "power2.inOut",
+            scrollTrigger: {
+                trigger: ".line-chart-svg",
+                start: "top 85%"
+            },
+            onComplete: () => {
+                gsap.to(".end-dot", { opacity: 1, duration: 0.5 });
+            }
+        });
+
+        // Case Studies
+        gsap.utils.toArray('.case-card').forEach((card) => {
+            gsap.fromTo(card, 
+                { scale: 0.9, opacity: 0, rotationX: 10 },
+                {
+                    scrollTrigger: { trigger: card, start: "top 85%", end: "center center", scrub: 1 },
+                    scale: 1, opacity: 1, rotationX: 0, ease: "power2.out"
+                }
+            );
+        });
+
+        // Service Rows
+        gsap.utils.toArray('.service-row').forEach((row, i) => {
+            gsap.fromTo(row, 
+                { x: -50, opacity: 0 },
+                {
+                    scrollTrigger: { trigger: row, start: "top 85%", end: "top 60%", scrub: 1 },
+                    x: 0, opacity: 1, ease: "power2.out"
+                }
+            );
+        });
+
+        // Footer Orb
+        gsap.fromTo(".footer-orb",
+            { y: "60%", scale: 0.9 },
+            {
+                scrollTrigger: { trigger: "footer", start: "top bottom", end: "bottom bottom", scrub: 2 },
+                y: "40%", scale: 1, ease: "none"
+            }
+        );
+    </script>
+</body>
+</html>
